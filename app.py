@@ -36,6 +36,8 @@ def pod_failed_report_processor():
         )
         df.columns = df.columns.str.strip()
 
+        df = df[df["VALID POD"].astype(str).str.upper() == "N"]
+
         whs_choice = st.selectbox(
             "Select WHS Area",
             options=["BOI", "EUG", "GEG", "PDX", "SEA", "All SEA AREAs"],

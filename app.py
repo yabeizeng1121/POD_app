@@ -7,7 +7,7 @@ from zipfile import ZipFile
 if "generated_files" not in st.session_state:
     st.session_state.generated_files = {}
 
-REASON_TRANSLATIONS = {
+REASON_TRANSLATIONS_ZH = {
     "No Address Info": "地址不清",
     "Location Not Clear": "位置不明确",
     "No Clear Shipping Label": "运单标签不清晰",
@@ -18,6 +18,19 @@ REASON_TRANSLATIONS = {
     "Wrong Parcel Photo": "包裹照片错误",
     "No POD": "无POD照片",
     "Inappropriate Delivery": "投递方式不当",
+}
+
+REASON_TRANSLATIONS_ES = {
+    "No Address Info": "Dirección no clara",
+    "Location Not Clear": "Ubicación poco clara",
+    "No Clear Shipping Label": "Etiqueta de envío ilegible",
+    "Public or Unsafe Area": "Área pública o peligrosa",
+    "Invalid Mailbox Delivery": "Entrega en buzón no válido",
+    "Leave Outside of Building": "Paquete dejado fuera del edificio",
+    "Wrong Address": "Dirección incorrecta",
+    "Wrong Parcel Photo": "Foto de paquete incorrecta",
+    "No POD": "Sin foto de entrega (POD)",
+    "Inappropriate Delivery": "Entrega inapropiada",
 }
 
 
@@ -35,7 +48,6 @@ def pod_failed_report_processor():
             else pd.read_csv(uploaded_file)
         )
         df.columns = df.columns.str.strip()
-
         df = df[df["VALID POD"].astype(str).str.upper() == "N"]
 
         whs_choice = st.selectbox(
@@ -127,9 +139,10 @@ def pod_reason_explanation():
         top_reasons = reason_counts.index.tolist()
 
         # English Summary
+        # English Summary
         st.markdown("### 📝 Summary (English)")
         st.markdown(
-            f"{selected_date.strftime('%Y-%m-%d')} POD failures were found. "
+            f"Cainiao identified POD failures on {selected_date.strftime('%Y-%m-%d')}. "
             f"Please train the drivers below, with a focus on the following issues:"
         )
         for reason in top_reasons:
@@ -138,21 +151,34 @@ def pod_reason_explanation():
         # Chinese Summary
         st.markdown("### 📝 总结（中文）")
         st.markdown(
-            f"{selected_date.strftime('%Y-%m-%d')} 查到的POD不合格，请DSP对这些司机进行培训，"
+            f"Cainiao{selected_date.strftime('%Y-%m-%d')} 查到的POD不合格，请DSP对这些司机进行培训，"
             f"其中重点注意以下几个问题："
         )
         for reason in top_reasons:
-            zh_reason = REASON_TRANSLATIONS.get(reason.strip(), reason)
+            zh_reason = REASON_TRANSLATIONS_ZH.get(reason.strip(), reason)
             st.markdown(f"- {zh_reason}")
+
+        # Spanish Summary
+        # Spanish Summary
+        st.markdown("### 📝 Resumen (Español)")
+        st.markdown(
+            f"Cainiao detectó entregas con fallas de POD el {selected_date.strftime('%Y-%m-%d')}. "
+            f"Por favor capaciten a los conductores, con enfoque en los siguientes problemas:"
+        )
+        for reason in top_reasons:
+            es_reason = REASON_TRANSLATIONS_ES.get(reason.strip(), reason)
+            st.markdown(f"- {es_reason}")
 
         st.markdown("以下为一些不合格的例子：")
         for reason in top_reasons:
             subdf = df[df["result"] == reason]
             top_driver = subdf["Driver ID"].value_counts().idxmax()
-            zh_reason = REASON_TRANSLATIONS.get(reason.strip(), reason)
+            zh_reason = REASON_TRANSLATIONS_ZH.get(reason.strip(), reason)
             row = subdf[subdf["Driver ID"] == top_driver].iloc[0]
             tno = row.get("tno", "Unknown")
-            st.markdown(f"Driver {top_driver} - Parcel: `{tno}`: {zh_reason}/ {reason}")
+            st.markdown(
+                f"Driver {top_driver} - Parcel: `{tno}`: {zh_reason}/ {reason}/{es_reason}"
+            )
             display_images(row)
 
         st.markdown("---")

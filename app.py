@@ -52,7 +52,17 @@ def pod_failed_report_processor():
 
         whs_choice = st.selectbox(
             "Select WHS Area",
-            options=["BOI", "EUG", "GEG", "PDX", "SEA", "MSO", "BIL", "All SEA WHS"],
+            options=[
+                "BOI",
+                "SLC",
+                "EUG",
+                "GEG",
+                "PDX",
+                "SEA",
+                "MSO",
+                "BIL",
+                "All SEA WHS",
+            ],
         )
         all_whs = ["BOI", "EUG", "GEG", "PDX", "SEA", "MSO", "BIL"]
 

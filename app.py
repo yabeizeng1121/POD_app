@@ -55,6 +55,7 @@ def pod_failed_report_processor():
             options=[
                 "BOI",
                 "SLC",
+                "DEN",
                 "EUG",
                 "GEG",
                 "PDX",
